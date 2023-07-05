@@ -28,7 +28,7 @@ class EncodingBlock(nn.Module):
         #padding = [1, 2, 4, 0, 0]
 
         #number of layers excluding reshaping and remapping
-        n_enc_layers = 4
+        n_enc_layers = len(k_sizes) - 1
         encoder_layers = []
         for i in range(n_enc_layers):
             conv_layer = [nn.Conv2d(channels[i], channels[i+1], kernel_size=k_sizes[i], dilation=dilation[i], padding=padding[i]),
@@ -67,7 +67,7 @@ class IntermediateBlock(nn.Module):
         self.pre_noiseconv = nn.Sequential(nn.Conv2d(channels[0], channels[0], kernel_size=k_sizes[0], dilation=dilation[0], padding=padding[0]),
                                    nn.PReLU())
         self.gating = SelfGating(channels[0])
-        n_selfgating_layers = 9
+        n_selfgating_layers = len(k_sizes) - 1
         self.conv_layers = nn.ModuleList()
         for i in range(1, n_selfgating_layers + 1):
             conv_selfgating = nn.Sequential(nn.Conv2d(channels[2*i-1], channels[2*i], kernel_size=k_sizes[i], dilation=dilation[i], padding=padding[i]))
@@ -101,7 +101,7 @@ class DecodingBlock(nn.Module):
         #dilation = [1, 4, 2, 1]
         #padding = [0, 4, 2, 1]
         decoder_layers = []
-        n_dec_layers = 4
+        n_dec_layers = len(k_sizes)
         for i in range(n_dec_layers):
             deconv_layer = [nn.ConvTranspose2d(channels[i], channels[i+1], kernel_size=k_sizes[i], dilation=dilation[i], padding=padding[i]),
                           nn.PReLU()]
