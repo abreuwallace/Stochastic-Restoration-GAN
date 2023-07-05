@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from modules import EncodingBlock, ResidualBlock, LogitBlock
+from src.models.modules import EncodingBlock, ResidualBlock, LogitBlock
 
 class Discriminator(nn.Module):
     def __init__(self, enc_params, res_params, logit_params):

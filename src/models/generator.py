@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from modules import EncodingBlock, IntermediateBlock, DecodingBlock
+from src.models.modules import EncodingBlock, IntermediateBlock, DecodingBlock
 
 class Generator(nn.Module):
     def __init__(self, enc_params, interm_params, dec_params):
