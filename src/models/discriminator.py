@@ -7,8 +7,8 @@ class Discriminator(nn.Module):
         """ Discriminator model.
         Args:
             enc_params (dict): dictionary of parameters for the encoding section
-            inter_params (dict): dictionary of parameters for the intermediate section
-            dec_params (dict): dictionary of parameters for the decoding section
+            res_params (dict): dictionary of parameters for the residual section
+            logit_params (dict): dictionary of parameters for the output section
         """ 
         super().__init__()
         #Hardcode for testing
