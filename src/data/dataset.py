@@ -7,6 +7,8 @@ from torch import Tensor
 from pathlib import Path
 from torchaudio.transforms import Spectrogram
 
+
+
 def load_audio_item(filepath: str, path: str, label_name: str) -> Tuple[Tensor, int, str, str]:
     relpath = os.path.relpath(filepath, path)
     label, filename = os.path.split(relpath)
@@ -15,7 +17,22 @@ def load_audio_item(filepath: str, path: str, label_name: str) -> Tuple[Tensor, 
     waveform, sample_rate = torchaudio.load(filepath)
     return waveform, sample_rate, label, filename
 
+def stft_nonlin_scaling(X):
+    """Transform complex STFT coefficient to perceptually inspired scaling
 
+    Args:
+        X (torch.tensor): input STFT. complex as channels [2, F, T]
+    """
+    if len(X.shape) != 3:
+        AssertionError(f"Expected tensor of len=3, received len={len(X.shape)}")
+
+    Xreal = X[0, :, :]
+    Xim = X[1, :, :]
+    Xreal_scaled = torch.sign(Xreal) * torch.sqrt(torch.abs(Xreal)).unsqueeze(0)
+    Xim_scaled = torch.sign(Xim) * torch.sqrt(torch.abs(Xim)).unsqueeze(0)
+    X_scaled = torch.vstack((Xreal_scaled, Xim_scaled))
+
+    return X_scaled
 
 class AudioFolder(Dataset):
     """Create a Dataset from Local Files.
@@ -41,6 +58,7 @@ class AudioFolder(Dataset):
             seg_len = 4,
             overlap = 2,
             stft: bool = True,
+            stft_scaling = True,
             win_len: int = 2048, 
             hop_len: int = 512, 
             n_fft: int = 2048,
@@ -54,6 +72,7 @@ class AudioFolder(Dataset):
         self._label = label
         self._seg_len = seg_len
         self._overlap = overlap
+        self._stft_scaling = stft_scaling
 
         walker = sorted(str(p) for p in Path(self._path).glob(f'{pattern}{suffix}'))
         self._walker = list(walker)
@@ -98,6 +117,9 @@ class AudioFolder(Dataset):
                 Ch, Fr, T, _ = Xorig.shape
                 Xorig = Xorig.reshape(2 * Ch, Fr, T)
                 Xdeg = Xdeg.reshape(2 * Ch, Fr, T)
+                if self._stft_scaling:
+                    Xorig = stft_nonlin_scaling(Xorig)
+                    Xdeg = stft_nonlin_scaling(Xdeg)
                 return Xdeg, Xorig
         else:
             return torch.unsqueeze(self._degraded_wave_chunks[n], dim=0), torch.unsqueeze(self._original_wave_chunks[n], dim=0)
