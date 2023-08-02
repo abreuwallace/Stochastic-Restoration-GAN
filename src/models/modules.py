@@ -74,10 +74,9 @@ class IntermediateBlock(nn.Module):
             self.conv_layers.insert(i, conv_selfgating)
         
                 
-    def forward(self, x):
+    def forward(self, x, z):
         x = self.pre_noiseconv(x)
         B, _, F, T = x.shape
-        z = torch.randn((B, 64, 1, 1))
         z = z.expand(B, 64, F, T)
         x = torch.cat((x, z), dim=1)
         for layer in self.conv_layers:
