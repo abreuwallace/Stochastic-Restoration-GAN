@@ -44,8 +44,8 @@ class Generator(nn.Module):
                                             dec_params["dilation"], 
                                             dec_params["padding"])
 
-    def forward(self, x):
+    def forward(self, x, z):
         x = self.encoding_block(x)
-        x = self.intermediate_block(x)
+        x = self.intermediate_block(x, z)
         x = self.decoding_block(x)
         return x

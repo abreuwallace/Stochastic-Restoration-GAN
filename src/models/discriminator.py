@@ -14,7 +14,7 @@ class Discriminator(nn.Module):
         #Hardcode for testing
         # enc_params = dict(channels = [2, 18, 38, 38, 4096, 128, 256],
         #                   k_size = [3, 3, 3, (1024, 1), 1],
-        #                   dilation = [1, 2, 4, 1, 1],
+        #                   dilation = [3, 3, 3, (1024, 1), 1],
         #                   padding = [1, 2, 4, 0, 0])
 
         # res_params = dict(channels = [256, 256, 256, 128, 256, 128, 256, 128, 256, 128, 256,
@@ -50,3 +50,19 @@ class Discriminator(nn.Module):
         x = self.residual_block(x)
         x = self.logit_block(x)
         return x
+
+def discriminator_loss(disc_real_outputs, disc_generated_outputs):
+    loss = 0
+    for dr, dg in zip(disc_real_outputs, disc_generated_outputs):
+        r_loss = torch.mean(dr)
+        g_loss = torch.mean(dg)
+        loss += (r_loss - g_loss)
+
+    return loss  
+
+def generator_loss(disc_outputs):
+    loss = 0
+    for dg in disc_outputs:
+        g_loss = torch.mean(dg)
+        loss += g_loss
+    return loss
