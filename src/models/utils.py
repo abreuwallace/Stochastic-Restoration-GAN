@@ -8,7 +8,8 @@ def profile_loss(gen, x, v, p_freq=1.3, p_rythm=1.6):
         gen (Generator): generator model
         x (torch.Tensor): input tensor [B, C, F, T]
         v (float): regularization strength
-        p (float): norm order
+        p_freq (float): norm order for frequency profile
+        p_rythm (float): norm order for rythm profile
     """
     if len(x.shape) < 4:
         AssertionError(f"Expect input shape len=4, received len={len(x.shape)}")
