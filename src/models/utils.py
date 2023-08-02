@@ -1,3 +1,4 @@
+import torch.nn as nn
 import torch
 from src.models.generator import Generator
 
@@ -22,3 +23,9 @@ def profile_loss(gen, x, v, p_freq=1.3, p_rythm=1.6):
     L_rythm = v * torch.linalg.norm(z_i - z_j, ord=2, dim=1) / torch.linalg.norm((torch.mean(P_i, dim=-1) - torch.mean(P_j, dim=-1)), ord=p_rythm, dim=-1)
 
     return L_freq + L_rythm
+
+# Initialize the weights using He initialization
+def init_weights(module):
+    if isinstance(module, nn.Conv2d):
+        fan_in = module.weight.size(1) * module.weight.size(2) * module.weight.size(3)
+        nn.init.kaiming_normal_(module.weight, mode='fan_in', nonlinearity='relu')
