@@ -63,13 +63,11 @@ class AudioFolder(Dataset):
             hop_len: int = 512, 
             n_fft: int = 2048,
             complex_as_channels: bool = True,
-            label: str = None
         ):
         
         self._path = path
         self._stft = stft
         self._sample_rate = fs
-        self._label = label
         self._seg_len = seg_len
         self._overlap = overlap
         self._stft_scaling = stft_scaling
@@ -125,7 +123,7 @@ class AudioFolder(Dataset):
             return torch.unsqueeze(self._degraded_wave_chunks[n], dim=0), torch.unsqueeze(self._original_wave_chunks[n], dim=0)
 
     def __len__(self) -> int:
-        return len(self._walker)
+        return self._original_wave_chunks.shape[0]
     
     def get_sample_rate(self):
        return self._sample_rate 
@@ -139,11 +137,11 @@ def main():
                             seg_len=4,
                             overlap=2,
                             stft=True,
+                            stft_scaling=True,
                             win_len=2048, 
                             hop_len=512, 
                             n_fft=2048,
-                            complex_as_channels=True,
-                            label=None)
+                            complex_as_channels=True)
 
     print(train_data[0])
 

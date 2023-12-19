@@ -1,4 +1,5 @@
 import torch
+from torch.autograd import grad as torch_grad
 from torch import nn
 from src.models.modules import EncodingBlock, ResidualBlock, LogitBlock
 
@@ -66,3 +67,32 @@ def generator_loss(disc_outputs):
         g_loss = torch.mean(dg)
         loss += g_loss
     return loss
+
+def gradient_penalty(discriminator, real_data, generated_data, device, gp_weight=1):
+    batch_size = real_data.shape[0]
+
+    # Calculate interpolation
+    alpha = torch.rand(batch_size, 1, 1, 1).to(device)
+    alpha = alpha.expand_as(real_data)
+ 
+    interpolated = alpha * real_data + (1 - alpha) * generated_data
+    interpolated.requires_grad_()
+
+    # Calculate probability of interpolated examples
+    prob_interpolated = discriminator(interpolated)
+
+    # Calculate gradients of probabilities with respect to examples
+    gradients = torch_grad(outputs=prob_interpolated, inputs=interpolated,
+                            grad_outputs=torch.ones(prob_interpolated.size()).to(device),
+                            create_graph=True, retain_graph=True)[0]
+
+    # Gradients have shape (batch_size, num_channels, img_width, img_height),
+    # so flatten to easily take norm per example in batch
+    gradients = gradients.view(batch_size, -1)
+
+    # Derivatives of the gradient close to 0 can cause problems because of
+    # the square root, so manually calculate norm and add epsilon
+    gradients_norm = torch.sqrt(torch.sum(gradients ** 2, dim=1) + torch.finfo(torch.float32).eps)
+
+    # Return gradient penalty
+    return gp_weight * ((gradients_norm - 1) ** 2).mean()

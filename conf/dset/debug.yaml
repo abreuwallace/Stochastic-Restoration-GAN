@@ -1,0 +1,6 @@
+# @package dset
+datapath: "/home/wallace.abreu/Mestrado/Stochastic-Restoration-GAN/data/"
+suffix: ".wav"
+train_pattern: "*/train/*"
+val_pattern: "*/val/*"
+test_pattern: "*/test/*"

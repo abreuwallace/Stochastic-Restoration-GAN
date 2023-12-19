@@ -1,0 +1,14 @@
+defaults:
+  - experiment: debug
+  - dset: debug
+
+logging: True
+num_prints: 5
+
+device: cuda
+num_workers: 4
+
+# checkpoint settings
+checkpoint: True
+checkpoint_every: 
+checkpoint_file: 
